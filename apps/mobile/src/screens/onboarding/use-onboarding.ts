@@ -19,6 +19,7 @@ import {
 } from '../../features/vehicles/di';
 import { OffensiveResponse, Vehicle } from '../../features/vehicles/domain/entities';
 import { getVehicleCommandsAuthorizationUseCase } from '../../features/auth/di';
+import { selectTelemetryVehicle } from './onboarding.helpers';
 import { registerDeviceForPush } from '../settings/settings.helpers';
 import { requestVehicleCommandsScope } from '../vehicle-detail/vehicle-detail.helpers';
 
@@ -166,7 +167,7 @@ export function useOnboarding(onComplete: () => void) {
   };
 
   const vehicles = vehiclesQuery.data ?? [];
-  const telemetryVehicle = vehicles.find((vehicle) => !vehicle.sentry_mode_monitoring_enabled) ?? vehicles[0] ?? null;
+  const telemetryVehicle = selectTelemetryVehicle(vehicles);
   const monitoredVehicle = vehicles.find((vehicle) => vehicle.sentry_mode_monitoring_enabled) ?? vehicles[0] ?? null;
 
   const isTelegramLinked = telegramStatusQuery.data?.linked === true;
@@ -189,7 +190,6 @@ export function useOnboarding(onComplete: () => void) {
       isNotificationConfigMissing: !isNotificationConfigured,
       isTelemetryMissing: vehicles.length > 0 && !vehicles.some((vehicle) => vehicle.sentry_mode_monitoring_enabled),
       isVehicleMissing: vehicles.length === 0,
-      isVirtualKeyMissing: vehicles.length > 0 && !vehicles.some((vehicle) => vehicle.key_paired),
     },
     isPushActive: isPushEnabled,
     isTelegramLinked,
