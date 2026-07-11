@@ -1,21 +1,18 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { Platform } from 'react-native';
 
 import { appLogger } from '../logging';
 import {
   pushNotificationService,
-  registerPushTokenUseCase,
-  updateNotificationPreferencesUseCase,
 } from '../../features/notifications/di';
 
-interface PushTokenSyncResult {
+interface PushTokenResult {
   isTokenResolved: boolean;
   pushToken: string | null;
   setPushToken: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export function usePushTokenSync(): PushTokenSyncResult {
+export function usePushToken(): PushTokenResult {
   const [pushToken, setPushToken] = useState<string | null>(null);
   const [isTokenResolved, setIsTokenResolved] = useState(false);
   const queryClient = useQueryClient();
@@ -32,8 +29,7 @@ export function usePushTokenSync(): PushTokenSyncResult {
           if (isActive) {
             setPushToken(freshToken);
           }
-          await registerPushTokenUseCase.execute(freshToken, Platform.OS);
-          appLogger.info('push', `Push token synced (…${freshToken.slice(-8)})`);
+          appLogger.info('push', `Push token resolved (…${freshToken.slice(-8)})`);
           if (isActive) {
             void queryClient.invalidateQueries({ queryKey: ['notification-preferences', freshToken] });
           }
@@ -41,11 +37,7 @@ export function usePushTokenSync(): PushTokenSyncResult {
           if (isActive) {
             setPushToken(null);
           }
-          appLogger.warn('push', 'Push permission missing, disabling push for the cached token');
-          await updateNotificationPreferencesUseCase.execute({ push_enabled: false }, cachedToken);
-          if (isActive) {
-            void queryClient.invalidateQueries({ queryKey: ['notification-preferences', cachedToken] });
-          }
+          appLogger.warn('push', 'Push permission missing, disabling push in local state');
         }
       } catch (error) {
         appLogger.error('push', 'Push token sync failed', error instanceof Error ? error.message : error);
