@@ -64,12 +64,8 @@ function parseCallbackParams(searchParams: URLSearchParams): CallbackParams {
   }
 
   const hash = typeof window !== 'undefined' ? window.location.hash : '';
-  const search = typeof window !== 'undefined' ? window.location.search : '';
   const hashParams = new URLSearchParams(hash.replace(/^#/, ''));
-  const searchParamsDirect = new URLSearchParams(search);
-  const tokenFromHash = hashParams.get('token');
-  const tokenFromQuery = searchParamsDirect.get('token') || searchParams.get('token');
-  const token = tokenFromHash || tokenFromQuery;
+  const token = hashParams.get('token');
 
   return { token, error: null };
 }
