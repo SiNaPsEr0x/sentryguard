@@ -1,13 +1,25 @@
 import 'reflect-metadata';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { Logger as PinoLogger } from 'nestjs-pino';
+import helmet from 'helmet';
+import { validateEncryptionKey } from './common/utils/crypto.util';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   app.useLogger(app.get(PinoLogger));
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    })
+  );
+
+  // Global security headers via helmet
+  app.use(helmet());
 
   const webappUrl = process.env.WEBAPP_URL || 'http://localhost:4200';
   const additionalOrigins = (process.env.CORS_ALLOWED_ORIGINS || '')
@@ -24,7 +36,38 @@ async function bootstrap() {
       ...additionalOrigins,
     ])
   );
-  const corsOrigins: Array<string | RegExp> = [...baseOrigins];
+
+  const originRegex = /^https?:\/\/[a-zA-Z0-9.-]+(:\d+)?$/;
+  const validatedOrigins = baseOrigins
+    .map((origin) => origin.replace(/\/$/, '').toLowerCase())
+    .filter((origin) => {
+      if (origin === '*') {
+        Logger.warn(
+          `⚠️ Wildcard '*' detected in CORS origins. This is not recommended when credentials are enabled.`,
+          'Bootstrap'
+        );
+        return false;
+      }
+      if (!originRegex.test(origin)) {
+        Logger.error(
+          `❌ Invalid CORS origin format ignored: "${origin}"`,
+          '',
+          'Bootstrap'
+        );
+        return false;
+      }
+      return true;
+    });
+
+  if (validatedOrigins.length === 0 && process.env.WEBAPP_URL) {
+    Logger.error(
+      `❌ No valid CORS origins after validation. Check WEBAPP_URL and CORS_ALLOWED_ORIGINS env vars.`,
+      '',
+      'Bootstrap'
+    );
+    process.exit(1);
+  }
+  const corsOrigins: Array<string | RegExp> = [...validatedOrigins];
 
   app.enableCors({
     origin: corsOrigins,
@@ -44,11 +87,22 @@ async function bootstrap() {
   });
 
   // Enable trust proxy for Cloudflare and Nginx Proxy Manager
-  // This allows rate limiting to work correctly by detecting real client IPs
-  // from forwarded headers (CF-Connecting-IP, X-Forwarded-For, X-Real-IP)
-  app.getHttpAdapter().getInstance().set('trust proxy', true);
+  // Restrict trust proxy configuration in production to prevent header spoofing
+  if (process.env.NODE_ENV === 'production') {
+    app.getHttpAdapter().getInstance().set('trust proxy', 'loopback, linklocal, uniquelocal');
+  } else {
+    app.getHttpAdapter().getInstance().set('trust proxy', true);
+  }
 
   const port = process.env.PORT || 3001;
+
+  try {
+    validateEncryptionKey();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    Logger.error(`❌ Invalid ENCRYPTION_KEY: ${message}. Shutting down.`, 'Bootstrap');
+    process.exit(1);
+  }
 
   process.on('SIGTERM', async () => {
     Logger.log('📴 SIGTERM received, shutting down gracefully...');
