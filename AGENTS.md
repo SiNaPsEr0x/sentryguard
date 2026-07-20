@@ -134,7 +134,7 @@ apps/api/src/
 apps/webapp/src/
 ├── app/           # App Router: public [locale]/ pages (SSR) + flat client flow (callback, consent, onboarding, dashboard)
 ├── features/      # Clean architecture per domain: domain / data / presentation / di.ts
-├── core/          # api client (runtime URL via /api/runtime-config), i18n, query provider
+├── core/          # api client (runtime URL via /api/runtime-config), i18n, query provider, security (CSP)
 ├── components/    # React components (Tailwind CSS)
 ├── locales/       # en/fr common.json
 └── proxy.ts       # locale redirect middleware
