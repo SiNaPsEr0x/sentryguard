@@ -170,9 +170,17 @@ export function useAuthScreen({ onAuthenticated }: UseAuthScreenParams): UseAuth
     if (!trimmedApiUrl) {
       return;
     }
-    if (!/^https?:\/\/.+/.test(trimmedApiUrl)) {
+
+    const isDev = __DEV__;
+    const isLocalhost = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(?:1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+)(?::\d+)?(?:\/.*)?$/i.test(trimmedApiUrl);
+    const requireHttps = !(isDev && isLocalhost);
+
+    if (requireHttps && !/^https:\/\/.+/.test(trimmedApiUrl)) {
+      throw new Error(t('auth.error.apiUrl'));
+    } else if (!requireHttps && !/^https?:\/\/.+/.test(trimmedApiUrl)) {
       throw new Error(t('auth.error.apiUrl'));
     }
+
     await apiUrlStore.setUrl(trimmedApiUrl);
     setApiUrl(apiUrlStore.getCustomUrl());
   };

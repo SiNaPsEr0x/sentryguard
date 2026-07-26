@@ -190,7 +190,7 @@ export class AuthService {
 
   private resolveJwtExpiresAt(): Date {
     const expiresAt = new Date();
-    const match = (process.env.JWT_EXPIRATION || '30d').match(/^(\d+)([dhm])$/);
+    const match = (process.env.JWT_EXPIRATION || '1d').match(/^(\d+)([dhm])$/);
 
     if (!match) {
       expiresAt.setDate(expiresAt.getDate() + 30);
