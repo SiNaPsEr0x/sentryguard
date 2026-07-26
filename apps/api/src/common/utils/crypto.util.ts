@@ -5,7 +5,7 @@ const GCM_ALGORITHM = 'aes-256-gcm';
 const CBC_ALGORITHM = 'aes-256-cbc';
 const GCM_IV_LENGTH = 12;
 
-export function validateEncryptionKey(): void {
+export function validateSecrets(): void {
   const key = process.env.ENCRYPTION_KEY;
 
   if (!key) {
@@ -19,10 +19,20 @@ export function validateEncryptionKey(): void {
       'ENCRYPTION_KEY is too short; it must be at least 32 characters.'
     );
   }
+
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret || jwtSecret.length < 32) {
+    throw new Error('JWT_SECRET must be defined, at least 32 characters long.');
+  }
+
+  const jwtOauthSecret = process.env.JWT_OAUTH_STATE_SECRET;
+  if (!jwtOauthSecret || jwtOauthSecret.length < 32) {
+    throw new Error('JWT_OAUTH_STATE_SECRET must be defined, at least 32 characters long.');
+  }
 }
 
 function getEncryptionKey(): Buffer {
-  validateEncryptionKey();
+  validateSecrets();
   return crypto.scryptSync(process.env.ENCRYPTION_KEY!, 'salt', 32);
 }
 

@@ -4,9 +4,17 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import helmet from 'helmet';
-import { validateEncryptionKey } from './common/utils/crypto.util';
+import { validateSecrets } from './common/utils/crypto.util';
 
 async function bootstrap() {
+  try {
+    validateSecrets();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Invalid secrets configuration: ${message}. Shutting down.`);
+    process.exit(1);
+  }
+
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
   app.useLogger(app.get(PinoLogger));
@@ -95,14 +103,6 @@ async function bootstrap() {
   }
 
   const port = process.env.PORT || 3001;
-
-  try {
-    validateEncryptionKey();
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    Logger.error(`❌ Invalid ENCRYPTION_KEY: ${message}. Shutting down.`, 'Bootstrap');
-    process.exit(1);
-  }
 
   process.on('SIGTERM', async () => {
     Logger.log('📴 SIGTERM received, shutting down gracefully...');

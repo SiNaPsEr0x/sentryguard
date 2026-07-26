@@ -64,7 +64,7 @@ export class NotificationsService {
 
     await this.pushDeviceTokenRepository.upsert(
       { userId, token, platform, push_enabled: true },
-      { conflictPaths: ['token'], skipUpdateIfNoValuesChanged: true }
+      { conflictPaths: ['userId', 'token'], skipUpdateIfNoValuesChanged: true }
     );
     return { success: true };
   }

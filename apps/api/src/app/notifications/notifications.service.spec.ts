@@ -110,7 +110,7 @@ describe('The NotificationsService class', () => {
       it('should create the device with push enabled', () => {
         expect(mockPushDeviceTokenRepository.upsert).toHaveBeenCalledWith(
           { userId: fakeUserId, token: fakeToken, platform: 'android', push_enabled: true },
-          { conflictPaths: ['token'], skipUpdateIfNoValuesChanged: true }
+          { conflictPaths: ['userId', 'token'], skipUpdateIfNoValuesChanged: true }
         );
       });
     });

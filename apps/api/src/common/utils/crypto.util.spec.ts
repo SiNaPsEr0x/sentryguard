@@ -7,7 +7,11 @@ describe('The crypto utility functions', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    process.env = { ...originalEnv };
+    process.env = {
+      ...originalEnv,
+      JWT_SECRET: 'b'.repeat(32),
+      JWT_OAUTH_STATE_SECRET: 'c'.repeat(32),
+    };
   });
 
   afterAll(() => {
