@@ -145,7 +145,7 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
       await this.subscribe();
       await this.startConsumer();
     } catch (error) {
-      this.logger.error(
+      this.logger.fatal(
         '💀 Reconnection process failed, exiting process for container restart:',
         error instanceof Error ? error.message : String(error)
       );
