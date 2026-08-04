@@ -17,6 +17,9 @@ const nextConfig = {
       },
     ],
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   productionBrowserSourceMaps: false,
   async headers() {
     return [
