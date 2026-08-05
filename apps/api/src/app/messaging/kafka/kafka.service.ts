@@ -222,6 +222,10 @@ export class KafkaService implements OnModuleInit, OnModuleDestroy {
     this.logger.log('Resubscribed to Kafka topic');
   }
 
+  public isKafkaConnected(): boolean {
+    return this.isConnected;
+  }
+
   async onModuleInit() {
     await this.startListening();
   }

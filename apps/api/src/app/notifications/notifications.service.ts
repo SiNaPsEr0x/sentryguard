@@ -218,7 +218,7 @@ export class NotificationsService {
 
       await this.handleExpoPushResponse(device, response);
     } catch (error) {
-      this.logger.warn(`Failed to send push notification: ${error instanceof Error ? error.message : 'unknown error'} (correlation: ${correlationId || 'none'})`);
+      this.logger.error(`[NOTIFICATION_ERROR] Failed to send push notification: ${error instanceof Error ? error.message : 'unknown error'} (correlation: ${correlationId || 'none'})`);
     }
   }
 
@@ -266,7 +266,7 @@ export class NotificationsService {
     const result = await this.parseExpoPushResponse(response);
 
     if (!response.ok || result.data?.status === 'error') {
-      this.logger.warn(`Expo push rejected token ${device.id}: ${result.data?.message ?? response.statusText}`);
+      this.logger.warn(`[NOTIFICATION_ERROR] Expo push rejected token ${device.id}: ${result.data?.message ?? response.statusText}`);
     }
 
     if (result.data?.details?.error === 'DeviceNotRegistered') {
