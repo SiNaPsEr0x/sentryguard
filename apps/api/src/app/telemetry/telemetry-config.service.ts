@@ -254,15 +254,16 @@ export class TelemetryConfigService {
 
       if (telemetryConfig && telemetryConfig.key_paired === false) {
         try {
-          const fleetStatusResponse = await this.teslaApi.get<TeslaApiResponse<{ vehicle_command_protocol_required?: boolean }>>(
-            TESLA_API_ENDPOINTS.VEHICLE_FLEET_STATUS(vin),
+          const fleetStatusResponse = await this.teslaApi.post<TeslaApiResponse<{ vehicle_info?: Record<string, { vehicle_command_protocol_required?: boolean }> }>>(
+            TESLA_API_ENDPOINTS.FLEET_STATUS,
+            { vins: [vin] },
             {
               headers: { Authorization: `Bearer ${accessToken}` },
             }
           );
-          telemetryConfig.vehicle_command_protocol_required = fleetStatusResponse.data.response.vehicle_command_protocol_required;
+          telemetryConfig.vehicle_command_protocol_required = fleetStatusResponse.data.response.vehicle_info?.[vin]?.vehicle_command_protocol_required;
         } catch (error: unknown) {
-          this.logger.warn(`Failed to fetch fleet status for ${vin}:`, error);
+          this.logger.warn(`Failed to fetch fleet status for ${vin}: ${error}`);
         }
       }
 
