@@ -17,18 +17,18 @@ describe('The locale proxy middleware handler', () => {
   });
 
   describe('When requesting the root path without locale', () => {
-    it('should redirect to the default locale with a relative location', () => {
+    it('should redirect to the default locale', () => {
       const request = new NextRequest('https://sentryguard.org/');
 
       const response = proxy(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe('/en');
+      expect(response.headers.get('location')).toBe('https://sentryguard.org/en');
     });
   });
 
   describe('When requesting with accept-language fr', () => {
-    it('should redirect to /fr with a relative location', () => {
+    it('should redirect to /fr', () => {
       const request = new NextRequest('https://sentryguard.org/faq', {
         headers: {
           'accept-language': 'fr-FR,fr;q=0.9',
@@ -38,7 +38,7 @@ describe('The locale proxy middleware handler', () => {
       const response = proxy(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toBe('/fr/faq');
+      expect(response.headers.get('location')).toBe('https://sentryguard.org/fr/faq');
     });
   });
 });
