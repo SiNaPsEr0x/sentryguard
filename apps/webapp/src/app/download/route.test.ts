@@ -74,9 +74,7 @@ describe('The download route handler', () => {
 
       const response = await GET(request);
 
-      expect(response.headers.get('location')).toBe(
-        'https://sentryguard.org/en#mobile-app'
-      );
+      expect(response.headers.get('location')).toBe('/en#mobile-app');
     });
   });
 
@@ -89,9 +87,7 @@ describe('The download route handler', () => {
 
       const response = await GET(request);
 
-      expect(response.headers.get('location')).toBe(
-        'https://sentryguard.org/fr#mobile-app'
-      );
+      expect(response.headers.get('location')).toBe('/fr#mobile-app');
     });
   });
 
@@ -107,9 +103,7 @@ describe('The download route handler', () => {
 
       const response = await GET(request);
 
-      expect(response.headers.get('location')).toBe(
-        'https://sentryguard.org/en#mobile-app'
-      );
+      expect(response.headers.get('location')).toBe('/en#mobile-app');
     });
   });
 
@@ -126,9 +120,21 @@ describe('The download route handler', () => {
 
       const response = await GET(request);
 
-      expect(response.headers.get('location')).toBe(
-        'https://sentryguard.org/en#mobile-app'
-      );
+      expect(response.headers.get('location')).toBe('/en#mobile-app');
+    });
+  });
+
+  describe('When search parameters are present in the request', () => {
+    it('should preserve query parameters in the relative redirect', async () => {
+      const request = new NextRequest('https://sentryguard.org/download?ref=promo', {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
+        },
+      });
+
+      const response = await GET(request);
+
+      expect(response.headers.get('location')).toBe('/en?ref=promo#mobile-app');
     });
   });
 });

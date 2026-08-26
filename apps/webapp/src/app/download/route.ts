@@ -19,8 +19,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.redirect(googlePlayUrl);
   }
 
-  const url = request.nextUrl.clone();
-  url.pathname = `/${detectLocale(request)}`;
-  url.hash = 'mobile-app';
-  return NextResponse.redirect(url);
+  const locale = detectLocale(request);
+  const search = request.nextUrl.search;
+  const location = `/${locale}${search}#mobile-app`;
+
+  return new NextResponse(null, {
+    status: 307,
+    headers: {
+      Location: location,
+    },
+  });
 }

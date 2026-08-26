@@ -45,10 +45,14 @@ export function proxy(request: NextRequest) {
   }
 
   const locale = detectLocale(request);
-  const url = request.nextUrl.clone();
-  url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
+  const targetPath = `/${locale}${pathname === '/' ? '' : pathname}${request.nextUrl.search}`;
 
-  return NextResponse.redirect(url);
+  return new NextResponse(null, {
+    status: 307,
+    headers: {
+      Location: targetPath,
+    },
+  });
 }
 
 export const config = {
