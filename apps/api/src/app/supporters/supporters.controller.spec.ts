@@ -39,8 +39,32 @@ describe('The SupportersController class', () => {
   });
 
   describe('The handleWebhook() method', () => {
-    describe('When a webhook payload is received', () => {
-      it('should pass payload and signature to supportersService and return success', async () => {
+    describe('When a webhook payload is received with rawBody', () => {
+      it('should pass payload, rawBody string, and signature to supportersService', async () => {
+        const payload = { test: 'data' };
+        const rawBodyString = '{"raw":"body"}';
+        const signature = 'test-signature';
+        const mockReq = {
+          rawBody: Buffer.from(rawBodyString, 'utf-8'),
+        };
+
+        const result = await controller.handleWebhook(
+          payload,
+          signature,
+          mockReq as never
+        );
+
+        expect(result).toStrictEqual({ success: true });
+        expect(supportersService.handleWebhook).toHaveBeenCalledWith(
+          payload,
+          rawBodyString,
+          signature
+        );
+      });
+    });
+
+    describe('When a webhook payload is received without req or rawBody', () => {
+      it('should fallback to JSON.stringify(payload)', async () => {
         const payload = { test: 'data' };
         const signature = 'test-signature';
 
