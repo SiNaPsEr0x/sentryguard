@@ -22,7 +22,7 @@ describe('The NotificationsService class', () => {
       userId: fakeUserId,
     }) as PushDeviceToken;
 
-  const lastPushPayload = (): { body: string; title: string } => JSON.parse(fetchMock.mock.calls[0][1].body);
+  const lastPushPayload = (): { body: string; sound?: string; title: string } => JSON.parse(fetchMock.mock.calls[0][1].body);
 
   beforeEach(() => {
     mockPreferencesRepository = mock<Repository<NotificationPreferences>>();
@@ -67,6 +67,10 @@ describe('The NotificationsService class', () => {
 
       it('should send the localized English body', () => {
         expect(lastPushPayload().body).toBe('A break-in attempt was detected.');
+      });
+
+      it('should include the default sound', () => {
+        expect(lastPushPayload().sound).toBe('default');
       });
     });
 

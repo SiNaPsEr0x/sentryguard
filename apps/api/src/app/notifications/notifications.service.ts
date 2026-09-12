@@ -284,6 +284,7 @@ export class NotificationsService {
         type,
       },
       priority: 'high',
+      sound: 'default',
       title,
       to: token,
     };
