@@ -583,6 +583,19 @@ docker exec sentryguard-kafka kafka-topics --bootstrap-server localhost:9092 \
 >
 > **Topic Naming Mechanism**: Tesla Fleet Telemetry automatically generates topic names using the root-level `"namespace"` field in `config.json` combined with the record type suffix (e.g. `"namespace": "FleetTelemetry"` + vehicle record `"V"` -> topic `FleetTelemetry_V`). Do not attempt to specify topic names inside the `"kafka"` block.
 
+### 9.5 Connect Mobile Apps (iOS & Android)
+
+You can use the official SentryGuard mobile app from the [App Store or Google Play](https://sentryguard.org/download) directly with your self-hosted instance without having to build the mobile app from source:
+
+1. Install the SentryGuard app on your phone.
+2. Open the app to the login screen.
+3. **Tap the SentryGuard shield logo 5 times**.
+4. The hidden **Advanced Settings** form will appear:
+   - **API URL**: Enter your self-hosted API URL (e.g. `https://api.yourdomain.com`).
+   - **Virtual Key Pairing URL**: Enter your Tesla virtual key pairing URL (e.g. `https://tesla.com/_ak/yourdomain.com`).
+5. Tap **Save**.
+6. Tap **Tesla Login**. The OAuth flow and all subsequent telemetry/command requests will now communicate directly with your self-hosted backend.
+
 ---
 
 ## 10. Environment Variables Reference
